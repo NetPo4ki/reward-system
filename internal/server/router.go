@@ -33,8 +33,19 @@ func NewRouter(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 
 	r.Post("/auth/signup", authHandler.Signup)
 
+	userHandler := &handlers.UsersHandler{
+		Users:     repo.NewUsersRepo(pool),
+		Tasks:     repo.NewTasksRepo(pool),
+		UserTasks: repo.NewUserTasksRepo(pool),
+	}
+
 	r.Group(func(pr chi.Router) {
 		pr.Use(auth.Middleware(cfg.JWTSecret))
+
+		pr.Get("/users/{id}/status", userHandler.Status)
+		pr.Get("/users/leaderboard", userHandler.Leaderboard)
+		pr.Post("/users/{id}/complete", userHandler.CompleteTask)
+		pr.Post("/users/{id}/referrer", userHandler.SetReferrer)
 	})
 
 	return r
