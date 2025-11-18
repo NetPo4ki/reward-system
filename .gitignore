@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+
+# Env
+.env
+
+# Go
+bin/
+build/
+dist/
+vendor/
+
+# Editor
+.idea/
+.vscode/
+
+
