@@ -1,0 +1,11 @@
+{
+    "name": "reward-system-local",
+    "values": [
+      { "key": "baseUrl", "value": "http://localhost:8080", "enabled": true },
+      { "key": "token", "value": "", "enabled": true },
+      { "key": "userId", "value": "", "enabled": true },
+      { "key": "referrerId", "value": "2", "enabled": true },
+      { "key": "username", "value": "", "enabled": true }
+    ],
+    "_postman_variable_scope": "environment"
+}
