@@ -44,7 +44,7 @@ func NewRouter(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 
 		pr.Get("/users/{id}/status", userHandler.Status)
 		pr.Get("/users/leaderboard", userHandler.Leaderboard)
-		pr.Post("/users/{id}/complete", userHandler.CompleteTask)
+		pr.Post("/users/{id}/task/complete", userHandler.CompleteTask)
 		pr.Post("/users/{id}/referrer", userHandler.SetReferrer)
 	})
 

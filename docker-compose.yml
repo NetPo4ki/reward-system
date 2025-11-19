@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    container_name: reward_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-rewards}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-rewards}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  migrate:
+    image: migrate/migrate:4
+    container_name: reward_migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    entrypoint: ["/bin/sh", "-c", "migrate -path /migrations -database \"$${DATABASE_URL}\" up && echo 'migrations ok'"]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: deployments/docker/Dockerfile
+    container_name: reward_app
+    environment:
+      PORT: ${PORT:-8080}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "${PORT:-8080}:8080"
+
+volumes:
+  db_data: {}

@@ -1,0 +1,183 @@
+{
+    "info": {
+      "name": "Reward System API",
+      "_postman_id": "84d3d0f3-3e93-4c8c-9c2f-2f7e98fd3e8a",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Auth",
+        "item": [
+          {
+            "name": "Signup (issue JWT)",
+            "event": [
+              {
+                "listen": "prerequest",
+                "script": {
+                  "exec": [
+                    "pm.variables.set('username', 'user_' + Date.now());"
+                  ],
+                  "type": "text/javascript"
+                }
+              },
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                    "var json = pm.response.json();",
+                    "pm.environment.set('token', json.token);",
+                    "pm.environment.set('userId', json.user.id);"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"username\": \"{{username}}\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/auth/signup",
+                "host": [ "{{baseUrl}}" ],
+                "path": [ "auth", "signup" ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Users",
+        "item": [
+          {
+            "name": "GET /users/{id}/status",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                    "try {",
+                    "  var json = pm.response.json();",
+                    "  pm.test('userId совпадает', function () {",
+                    "    pm.expect(json.user.id).to.eql(parseInt(pm.environment.get('userId')));",
+                    "  });",
+                    "} catch (e) {}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "Authorization", "value": "Bearer {{token}}" }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/users/{{userId}}/status",
+                "host": [ "{{baseUrl}}" ],
+                "path": [ "users", "{{userId}}", "status" ]
+              }
+            }
+          },
+          {
+            "name": "GET /users/leaderboard?limit=50",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [
+                { "key": "Authorization", "value": "Bearer {{token}}" }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/users/leaderboard?limit=50",
+                "host": [ "{{baseUrl}}" ],
+                "path": [ "users", "leaderboard" ],
+                "query": [
+                  { "key": "limit", "value": "50" }
+                ]
+              }
+            }
+          },
+          {
+            "name": "POST /users/{id}/task/complete",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                    "var json = pm.response.json();",
+                    "pm.test('Есть поле newly_completed', function () {",
+                    "  pm.expect(json).to.have.property('newly_completed');",
+                    "});"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "Authorization", "value": "Bearer {{token}}" },
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"task_code\": \"subscribe_tg\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/users/{{userId}}/task/complete",
+                "host": [ "{{baseUrl}}" ],
+                "path": [ "users", "{{userId}}", "task", "complete" ]
+              }
+            }
+          },
+          {
+            "name": "POST /users/{id}/referrer",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "pm.test('Status is 204', function () { pm.response.to.have.status(204); });"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                { "key": "Authorization", "value": "Bearer {{token}}" },
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"referrer_id\": {{referrerId}}\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/users/{{userId}}/referrer",
+                "host": [ "{{baseUrl}}" ],
+                "path": [ "users", "{{userId}}", "referrer" ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+}
